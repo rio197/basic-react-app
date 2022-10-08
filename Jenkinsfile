@@ -43,10 +43,10 @@ pipeline {
       }
       steps{
         sh "sudo docker build . -t $BUILD_IMAGE_REPO_TAG"
-        sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:$COMMIT_TAG"
-        sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:${readJSON(file: 'package.json').version}"
-        sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:${params.LATEST_BUILD_TAG}"
-        sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:$BRANCH_NAME-latest"
+        sh "sudo docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:$COMMIT_TAG"
+        sh "sudo docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:${readJSON(file: 'package.json').version}"
+        sh "sudo docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:${params.LATEST_BUILD_TAG}"
+        sh "sudo docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:$BRANCH_NAME-latest"
       }
     }
     stage('docker push'){
@@ -74,14 +74,14 @@ pipeline {
         }
       }
       steps{
-        sh "docker stack rm ${params.DOCKER_STACK_NAME}"
+        sh "sudo docker stack rm ${params.DOCKER_STACK_NAME}"
 	      
 		      
       }
     }
     stage('Docker Stack Deploy'){
       steps{
-        sh "docker stack deploy -c ${params.DOCKER_COMPOSE_FILENAME} ${params.DOCKER_STACK_NAME}"
+        sh "sudo docker stack deploy -c ${params.DOCKER_COMPOSE_FILENAME} ${params.DOCKER_STACK_NAME}"
       }
     }
   }
