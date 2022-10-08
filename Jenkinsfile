@@ -63,7 +63,7 @@ pipeline {
         BUILD_IMAGE_REPO_TAG = "${params.IMAGE_REPO_NAME}:${env.BUILD_TAG}"
       }
       steps{
-        sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+        sh "echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin"
 	sh "sudo docker push $BUILD_IMAGE_REPO_TAG"
         sh "sudo docker push ${params.IMAGE_REPO_NAME}:$COMMIT_TAG"
         sh "sudo docker push ${params.IMAGE_REPO_NAME}:${readJSON(file: 'package.json').version}"
