@@ -3,9 +3,6 @@ pipeline {
   options {
     buildDiscarder(logRotator(numToKeepStr: '5'))
   }
-  tools {
-    nodejs 'node-latest'
-  }
   environment {
     dockerhub=credentials('dockerhub')
   }
