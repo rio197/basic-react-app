@@ -20,7 +20,14 @@ pipeline {
   }
   stages {
     stage('npm install'){
+      agent {
+        docker {
+	  image 'node:latest'
+	  customWorkspace "$JENKINS_HOME/workspace/$BUILD_TAG"
+	}
+      }		    
       steps{
+         sh "pwd"
          sh "npm install"
       }
     }
@@ -30,12 +37,25 @@ pipeline {
 			    return params.NPM_RUN_TEST
 		    }
 	    }
+      agent {
+        docker {
+	  image 'node:latest'
+	  customWorkspace "$JENKINS_HOME/workspace/$BUILD_TAG"
+	}
+      }
 	steps{
 	  sh "npm test -- --coverage"	
 	}
     }
     stage('npm build'){
+      agent {
+        docker {
+	  image 'node:latest'
+	  customWorkspace "$JENKINS_HOME/workspace/$BUILD_TAG"
+	}
+      }
       steps{
+        sh "pwd"
         sh "npm run build"
       }
     }
@@ -45,11 +65,14 @@ pipeline {
         BUILD_IMAGE_REPO_TAG = "${params.IMAGE_REPO_NAME}:${env.BUILD_TAG}"
       }
       steps{
-        sh "sudo docker build . -t $BUILD_IMAGE_REPO_TAG"
-        sh "sudo docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:$COMMIT_TAG"
-        sh "sudo docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:${readJSON(file: 'package.json').version}"
-        sh "sudo docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:${params.LATEST_BUILD_TAG}"
-        sh "sudo docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:$BRANCH_NAME-latest"
+        dir("$JENKINS_HOME/workspace/$BUILD_TAG") {
+          sh "pwd"
+          sh "sudo docker build . -t $BUILD_IMAGE_REPO_TAG"
+          sh "sudo docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:$COMMIT_TAG"
+          sh "sudo docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:${readJSON(file: 'package.json').version}"
+          sh "sudo docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:${params.LATEST_BUILD_TAG}"
+          sh "sudo docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:$BRANCH_NAME-latest"
+	}
       }
     }
     stage('docker push'){
