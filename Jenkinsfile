@@ -6,6 +6,9 @@ pipeline {
   tools {
     nodejs 'node-latest'
   }
+  environment {
+    dockerhub=credentials('dockerhub')
+  }
   parameters {
     string(name: 'IMAGE_REPO_NAME', defaultValue: 'rio197/basic-react', description: '')
     string(name: 'LATEST_BUILD_TAG', defaultValue: 'build-latest', description: '')
@@ -42,6 +45,7 @@ pipeline {
         BUILD_IMAGE_REPO_TAG = "${params.IMAGE_REPO_NAME}:${env.BUILD_TAG}"
       }
       steps{
+	sh "echo $dockerhub_PSW | docker login -u $dockerhub_USR --password-stdin"
         sh "sudo docker build . -t $BUILD_IMAGE_REPO_TAG"
         sh "sudo docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:$COMMIT_TAG"
         sh "sudo docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:${readJSON(file: 'package.json').version}"
