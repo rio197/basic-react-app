@@ -45,7 +45,6 @@ pipeline {
         BUILD_IMAGE_REPO_TAG = "${params.IMAGE_REPO_NAME}:${env.BUILD_TAG}"
       }
       steps{
-	sh "echo $dockerhub_PSW | docker login -u $dockerhub_USR --password-stdin"
         sh "sudo docker build . -t $BUILD_IMAGE_REPO_TAG"
         sh "sudo docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:$COMMIT_TAG"
         sh "sudo docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:${readJSON(file: 'package.json').version}"
@@ -64,7 +63,8 @@ pipeline {
         BUILD_IMAGE_REPO_TAG = "${params.IMAGE_REPO_NAME}:${env.BUILD_TAG}"
       }
       steps{
-        sh "sudo docker push $BUILD_IMAGE_REPO_TAG"
+        sh "echo $dockerhub_PSW | docker login -u $dockerhub_USR --password-stdin"
+	sh "sudo docker push $BUILD_IMAGE_REPO_TAG"
         sh "sudo docker push ${params.IMAGE_REPO_NAME}:$COMMIT_TAG"
         sh "sudo docker push ${params.IMAGE_REPO_NAME}:${readJSON(file: 'package.json').version}"
         sh "sudo docker push ${params.IMAGE_REPO_NAME}:${params.LATEST_BUILD_TAG}"
